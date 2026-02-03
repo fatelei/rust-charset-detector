@@ -3,7 +3,7 @@
 /// Orchestrates all detection strategies and provides the main API
 use crate::models::{DetectionResult, DetectionResults, Encoding, Language};
 use crate::ranges::has_iso2022_sequences;
-use crate::scorers::{detect_big5, detect_cp949, detect_gbk, detect_shift_jis, validate_utf8};
+use crate::scorers::{detect_big5, detect_shift_jis, validate_utf8};
 
 /// Main charset detector
 pub struct CharsetDetector {
@@ -127,16 +127,11 @@ impl Default for CharsetDetector {
 
 /// Detect BOM (Byte Order Mark)
 fn detect_bom(data: &[u8]) -> Option<DetectionResult> {
-    if data.len() >= 3 {
-        match &data[0..3] {
-            b"\xEF\xBB\xBF" => {
-                return Some(
-                    DetectionResult::new(Encoding::Utf8, 0.99)
-                        .with_method(crate::models::DetectionMethod::Bom),
-                );
-            }
-            _ => {}
-        }
+    if data.len() >= 3 && &data[0..3] == b"\xEF\xBB\xBF" {
+        return Some(
+            DetectionResult::new(Encoding::Utf8, 0.99)
+                .with_method(crate::models::DetectionMethod::Bom),
+        );
     }
 
     if data.len() >= 2 {

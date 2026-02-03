@@ -13,7 +13,7 @@ pub fn validate_utf8(data: &[u8]) -> Option<DetectionResult> {
     // Check for BOM
     if data.len() >= 3 && &data[0..3] == b"\xEF\xBB\xBF" {
         // Still validate the rest
-        let (valid, invalid_count) = count_valid_sequences(&data[3..]);
+        let (_valid, invalid_count) = count_valid_sequences(&data[3..]);
         let confidence = if invalid_count == 0 { 0.99 } else { 0.85 };
         return Some(
             DetectionResult::new(Encoding::Utf8, confidence).with_method(DetectionMethod::Bom),
@@ -56,7 +56,7 @@ fn count_valid_sequences(data: &[u8]) -> (usize, usize) {
             // ASCII (0-127)
             valid += 1;
             i += 1;
-        } else if byte >= 0xC2 && byte <= 0xDF {
+        } else if (0xC2..=0xDF).contains(&byte) {
             // 2-byte sequence
             if i + 1 < data.len() && is_utf8_continuation(data[i + 1]) {
                 valid += 1;
@@ -65,7 +65,7 @@ fn count_valid_sequences(data: &[u8]) -> (usize, usize) {
                 invalid += 1;
                 i += 1;
             }
-        } else if byte >= 0xE0 && byte <= 0xEF {
+        } else if (0xE0..=0xEF).contains(&byte) {
             // 3-byte sequence
             if i + 2 < data.len()
                 && is_utf8_continuation(data[i + 1])
@@ -85,7 +85,7 @@ fn count_valid_sequences(data: &[u8]) -> (usize, usize) {
                 invalid += 1;
                 i += 1;
             }
-        } else if byte >= 0xF0 && byte <= 0xF4 {
+        } else if (0xF0..=0xF4).contains(&byte) {
             // 4-byte sequence
             if i + 3 < data.len()
                 && is_utf8_continuation(data[i + 1])
@@ -93,9 +93,7 @@ fn count_valid_sequences(data: &[u8]) -> (usize, usize) {
                 && is_utf8_continuation(data[i + 3])
             {
                 // Check for overlong and out-of-range
-                if byte == 0xF0 && data[i + 1] < 0x90 {
-                    invalid += 1;
-                } else if byte == 0xF4 && data[i + 1] > 0x8F {
+                if (byte == 0xF0 && data[i + 1] < 0x90) || (byte == 0xF4 && data[i + 1] > 0x8F) {
                     invalid += 1;
                 } else {
                     valid += 1;

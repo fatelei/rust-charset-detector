@@ -175,7 +175,6 @@ const BIG5_DISCRIMINATORS: &[(u8, u8)] = &[
 /// Score byte sequence for Big5
 pub fn score_big5(data: &[u8]) -> f32 {
     let mut matches = 0;
-    let mut checked = 0;
     let mut valid_big5 = 0;
 
     let mut i = 0;
@@ -240,7 +239,6 @@ const SHIFT_JIS_DISCRIMINATORS: &[(u8, u8)] = &[
 /// Score byte sequence for Shift_JIS
 pub fn score_shift_jis(data: &[u8]) -> f32 {
     let mut matches = 0;
-    let mut checked = 0;
     let mut katakana_count = 0;
     let mut valid_sjis = 0;
 

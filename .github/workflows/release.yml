@@ -28,9 +28,14 @@ jobs:
         python-version: '3.13'
 
     - name: Install maturin
+      shell: bash
       run: |
         python -m pip install --upgrade pip
-        pip install maturin[patchelf]
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          pip install maturin
+        else
+          pip install maturin[patchelf]
+        fi
 
     - name: Build wheels
       run: maturin build --release --strip --out dist/
