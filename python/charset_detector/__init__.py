@@ -12,6 +12,8 @@ Example usage:
     UTF-8
 """
 
+from typing import Optional
+
 # Import the Rust extension module
 try:
     from charset_detector._detector import (
@@ -57,7 +59,7 @@ def detect(data: bytes, min_confidence: float = 0.3) -> "CharsetMatches":
     return _detect_from_bytes(data, min_confidence)
 
 
-def detect_best(data: bytes, min_confidence: float = 0.3) -> "CharsetMatch | None":
+def detect_best(data: bytes, min_confidence: float = 0.3) -> "Optional[CharsetMatch]":
     """
     Detect charset and return only the best match.
 
@@ -106,7 +108,7 @@ class CharsetDetector:
         """
         return self._detector.detect(data)
 
-    def detect_best(self, data: bytes) -> "CharsetMatch | None":
+    def detect_best(self, data: bytes) -> "Optional[CharsetMatch]":
         """
         Detect and return only the best match.
 
@@ -118,7 +120,7 @@ class CharsetDetector:
         """
         return self._detector.detect_best(data)
 
-    def detect_encoding(self, data: bytes) -> str | None:
+    def detect_encoding(self, data: bytes) -> Optional[str]:
         """
         Detect and return encoding name only.
 

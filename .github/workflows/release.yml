@@ -46,35 +46,45 @@ jobs:
         name: wheels-${{ matrix.os }}
         path: dist/*
 
-  build-musllinux:
-    name: Build musllinux wheels
+  build-linux-wheels:
+    name: Build Linux wheels
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
-          - musllinux_x86_64
-          - musllinux_i686
-          - musllinux_aarch64
-    container:
-      image: ghcr.io/pyo3/maturin:release-musllinux_x86_64
-      options: --user root
+          - x86_64
+          - i686
+          - aarch64
+          - ppc64le
+          - s390x
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Set up QEMU
+      if: matrix.target != 'x86_64' && matrix.target != 'i686'
+      uses: docker/setup-qemu-action@v3
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
     - name: Build wheels
-      run: |
-        maturin build --release --strip --out dist/ --manylinux 2010
+      uses: PyO3/maturin-action@v1
+      with:
+        target: ${{ matrix.target }}-unknown-linux-gnu
+        manylinux: auto
+        args: --release --strip --out dist
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ matrix.target }}
+        name: wheels-linux-${{ matrix.target }}
         path: dist/*
 
   publish-pypi:
     name: Publish to PyPI
-    needs: [build-wheels, build-musllinux]
+    needs: [build-wheels, build-linux-wheels]
     runs-on: ubuntu-latest
     environment:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
@@ -91,12 +101,6 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         pattern: wheels-*
-        path: dist/
-
-    - name: Download musllinux wheels
-      uses: actions/download-artifact@v4
-      with:
-        pattern: wheels-musllinux
         path: dist/
 
     - name: List dist

@@ -58,47 +58,38 @@ jobs:
         name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
         path: dist/*.whl
 
-  build-musllinux:
-    name: Build musllinux wheels
+  build-linux-wheels:
+    name: Build Linux wheels
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
-          - musllinux_x86_64
-          - musllinux_i686
-          - musllinux_aarch64
-          - musllinux_ppc64le
-          - musllinux_s390x
-    container:
-      image: ghcr.io/pyo3/maturin:release-musllinux_x86_64
-      options: --user root
+          - x86_64
+          - i686
+          - aarch64
+          - ppc64le
+          - s390x
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build wheels
-      run: |
-        case "${{ matrix.target }}" in
-          musllinux_x86_64)
-            echo "Building for x86_64"
-            ;;
-          musllinux_i686)
-            echo "Building for i686"
-            ;;
-          musllinux_aarch64)
-            echo "Building for aarch64"
-            ;;
-          musllinux_ppc64le)
-            echo "Building for ppc64le"
-            ;;
-          musllinux_s390x)
-            echo "Building for s390x"
-            ;;
-        esac
-        maturin build --release --strip --out dist/ --manylinux 2010
+    - name: Set up QEMU
+      if: matrix.target != 'x86_64' && matrix.target != 'i686'
+      uses: docker/setup-qemu-action@v3
 
-    - name: Upload musllinux wheels
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Build wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        target: ${{ matrix.target }}-unknown-linux-gnu
+        manylinux: auto
+        args: --release --strip --out dist
+
+    - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheel-${{ matrix.target }}
+        name: wheel-linux-${{ matrix.target }}
         path: dist/*.whl
