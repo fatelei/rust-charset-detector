@@ -1,8 +1,7 @@
 /// CJK (Chinese, Japanese, Korean) encoding scorers
 ///
 /// Implements detection for GBK, GB18030, Big5, Shift_JIS, CP949, EUC-JP, EUC-KR
-
-use crate::models::{DetectionResult, DetectionMethod, Encoding, Language};
+use crate::models::{DetectionMethod, DetectionResult, Encoding, Language};
 use crate::ranges::*;
 
 // ============================================================================
@@ -290,18 +289,22 @@ pub fn score_shift_jis(data: &[u8]) -> f32 {
 pub fn detect_gbk(data: &[u8]) -> Option<DetectionResult> {
     // Hard rule check first
     if has_gbk_patterns(data) {
-        return Some(DetectionResult::new(Encoding::Gbk, 0.95)
-            .with_language(Language::Chinese)
-            .with_method(DetectionMethod::HardRule));
+        return Some(
+            DetectionResult::new(Encoding::Gbk, 0.95)
+                .with_language(Language::Chinese)
+                .with_method(DetectionMethod::HardRule),
+        );
     }
 
     let chinese_score = score_chinese(data);
 
     if chinese_score > 0.3 {
         let confidence = (chinese_score * 0.9).min(0.92);
-        Some(DetectionResult::new(Encoding::Gbk, confidence)
-            .with_language(Language::Chinese)
-            .with_method(DetectionMethod::FrequencyAnalysis))
+        Some(
+            DetectionResult::new(Encoding::Gbk, confidence)
+                .with_language(Language::Chinese)
+                .with_method(DetectionMethod::FrequencyAnalysis),
+        )
     } else {
         None
     }
@@ -313,9 +316,11 @@ pub fn detect_cp949(data: &[u8]) -> Option<DetectionResult> {
 
     if korean_score > 0.3 {
         let confidence = (korean_score * 0.9).min(0.92);
-        Some(DetectionResult::new(Encoding::Cp949, confidence)
-            .with_language(Language::Korean)
-            .with_method(DetectionMethod::FrequencyAnalysis))
+        Some(
+            DetectionResult::new(Encoding::Cp949, confidence)
+                .with_language(Language::Korean)
+                .with_method(DetectionMethod::FrequencyAnalysis),
+        )
     } else {
         None
     }
@@ -327,9 +332,11 @@ pub fn detect_big5(data: &[u8]) -> Option<DetectionResult> {
 
     if big5_score > 0.3 {
         let confidence = (big5_score * 0.9).min(0.90);
-        Some(DetectionResult::new(Encoding::Big5, confidence)
-            .with_language(Language::Chinese)
-            .with_method(DetectionMethod::FrequencyAnalysis))
+        Some(
+            DetectionResult::new(Encoding::Big5, confidence)
+                .with_language(Language::Chinese)
+                .with_method(DetectionMethod::FrequencyAnalysis),
+        )
     } else {
         None
     }
@@ -341,9 +348,11 @@ pub fn detect_shift_jis(data: &[u8]) -> Option<DetectionResult> {
 
     if sjis_score > 0.25 {
         let confidence = (sjis_score * 0.9).min(0.90);
-        Some(DetectionResult::new(Encoding::ShiftJis, confidence)
-            .with_language(Language::Japanese)
-            .with_method(DetectionMethod::FrequencyAnalysis))
+        Some(
+            DetectionResult::new(Encoding::ShiftJis, confidence)
+                .with_language(Language::Japanese)
+                .with_method(DetectionMethod::FrequencyAnalysis),
+        )
     } else {
         None
     }
@@ -353,9 +362,11 @@ pub fn detect_shift_jis(data: &[u8]) -> Option<DetectionResult> {
 pub fn discriminate_gbk_cp949(data: &[u8]) -> Option<DetectionResult> {
     // Hard rule: 0x40 trail byte means GBK
     if has_gbk_patterns(data) {
-        return Some(DetectionResult::new(Encoding::Gbk, 0.95)
-            .with_language(Language::Chinese)
-            .with_method(DetectionMethod::HardRule));
+        return Some(
+            DetectionResult::new(Encoding::Gbk, 0.95)
+                .with_language(Language::Chinese)
+                .with_method(DetectionMethod::HardRule),
+        );
     }
 
     let chinese_score = score_chinese(data);
@@ -372,9 +383,11 @@ pub fn discriminate_gbk_cp949(data: &[u8]) -> Option<DetectionResult> {
             0.5
         };
 
-        Some(DetectionResult::new(Encoding::Gbk, confidence.min(0.92))
-            .with_language(Language::Chinese)
-            .with_method(DetectionMethod::FrequencyAnalysis))
+        Some(
+            DetectionResult::new(Encoding::Gbk, confidence.min(0.92))
+                .with_language(Language::Chinese)
+                .with_method(DetectionMethod::FrequencyAnalysis),
+        )
     } else if korean_score > chinese_score {
         let confidence = if chinese_score + korean_score > 0.0 {
             korean_score / (chinese_score + korean_score)
@@ -382,14 +395,18 @@ pub fn discriminate_gbk_cp949(data: &[u8]) -> Option<DetectionResult> {
             0.5
         };
 
-        Some(DetectionResult::new(Encoding::Cp949, confidence.min(0.92))
-            .with_language(Language::Korean)
-            .with_method(DetectionMethod::FrequencyAnalysis))
+        Some(
+            DetectionResult::new(Encoding::Cp949, confidence.min(0.92))
+                .with_language(Language::Korean)
+                .with_method(DetectionMethod::FrequencyAnalysis),
+        )
     } else {
         // Tie - default to GBK (more common globally)
-        Some(DetectionResult::new(Encoding::Gbk, 0.5)
-            .with_language(Language::Chinese)
-            .with_method(DetectionMethod::Fallback))
+        Some(
+            DetectionResult::new(Encoding::Gbk, 0.5)
+                .with_language(Language::Chinese)
+                .with_method(DetectionMethod::Fallback),
+        )
     }
 }
 

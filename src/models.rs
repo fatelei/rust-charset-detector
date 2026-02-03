@@ -1,7 +1,6 @@
 /// Core data models for charset detection
 ///
 /// Defines encoding types, detection results, and related structures
-
 use std::fmt;
 
 /// Supported character encodings
@@ -163,19 +162,29 @@ impl Encoding {
     pub fn is_unicode(&self) -> bool {
         matches!(
             self,
-            Encoding::Utf8 | Encoding::Utf16Le | Encoding::Utf16Be |
-            Encoding::Utf32Le | Encoding::Utf32Be
+            Encoding::Utf8
+                | Encoding::Utf16Le
+                | Encoding::Utf16Be
+                | Encoding::Utf32Le
+                | Encoding::Utf32Be
         )
     }
 
     /// Check if this is a multi-byte encoding
     pub fn is_multibyte(&self) -> bool {
-        self.is_unicode() || matches!(
-            self,
-            Encoding::Gb18030 | Encoding::Gbk | Encoding::Big5 |
-            Encoding::ShiftJis | Encoding::Cp949 | Encoding::EucJp |
-            Encoding::EucKr | Encoding::Iso2022Jp | Encoding::Iso2022Kr
-        )
+        self.is_unicode()
+            || matches!(
+                self,
+                Encoding::Gb18030
+                    | Encoding::Gbk
+                    | Encoding::Big5
+                    | Encoding::ShiftJis
+                    | Encoding::Cp949
+                    | Encoding::EucJp
+                    | Encoding::EucKr
+                    | Encoding::Iso2022Jp
+                    | Encoding::Iso2022Kr
+            )
     }
 }
 
@@ -317,7 +326,9 @@ impl DetectionResults {
         self.candidates.push(result);
         // Keep sorted by confidence (descending)
         self.candidates.sort_by(|a, b| {
-            b.confidence.partial_cmp(&a.confidence).unwrap_or(std::cmp::Ordering::Equal)
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
     }
 
@@ -328,7 +339,8 @@ impl DetectionResults {
 
     /// Get only confident results (above threshold)
     pub fn confident(&self, threshold: f32) -> Vec<&DetectionResult> {
-        self.candidates.iter()
+        self.candidates
+            .iter()
             .filter(|r| r.confidence >= threshold)
             .collect()
     }

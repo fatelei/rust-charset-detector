@@ -1,9 +1,8 @@
 /// UTF-8 validation and scoring
 ///
 /// Provides fast UTF-8 validation with confidence scoring
-
-use crate::models::{DetectionResult, DetectionMethod, Encoding};
-use crate::ranges::{is_utf8_continuation};
+use crate::models::{DetectionMethod, DetectionResult, Encoding};
+use crate::ranges::is_utf8_continuation;
 
 /// Validate and score UTF-8 encoding
 pub fn validate_utf8(data: &[u8]) -> Option<DetectionResult> {
@@ -16,8 +15,9 @@ pub fn validate_utf8(data: &[u8]) -> Option<DetectionResult> {
         // Still validate the rest
         let (valid, invalid_count) = count_valid_sequences(&data[3..]);
         let confidence = if invalid_count == 0 { 0.99 } else { 0.85 };
-        return Some(DetectionResult::new(Encoding::Utf8, confidence)
-            .with_method(DetectionMethod::Bom));
+        return Some(
+            DetectionResult::new(Encoding::Utf8, confidence).with_method(DetectionMethod::Bom),
+        );
     }
 
     let (valid, invalid_count) = count_valid_sequences(data);
@@ -25,14 +25,18 @@ pub fn validate_utf8(data: &[u8]) -> Option<DetectionResult> {
     if invalid_count == 0 {
         // Perfect UTF-8
         let confidence = if valid > 0 { 0.98 } else { 0.5 };
-        Some(DetectionResult::new(Encoding::Utf8, confidence)
-            .with_method(DetectionMethod::Utf8Validation))
+        Some(
+            DetectionResult::new(Encoding::Utf8, confidence)
+                .with_method(DetectionMethod::Utf8Validation),
+        )
     } else if valid > invalid_count * 4 {
         // Mostly valid UTF-8
         let ratio = valid as f32 / (valid + invalid_count) as f32;
         let confidence = 0.6 * ratio;
-        Some(DetectionResult::new(Encoding::Utf8, confidence)
-            .with_method(DetectionMethod::Utf8Validation))
+        Some(
+            DetectionResult::new(Encoding::Utf8, confidence)
+                .with_method(DetectionMethod::Utf8Validation),
+        )
     } else {
         // Probably not UTF-8
         None
@@ -126,7 +130,9 @@ mod tests {
     #[test]
     fn test_valid_utf8_chinese() {
         // "你好世界" in UTF-8
-        let data = vec![0xE4, 0xBD, 0xA0, 0xE5, 0xA5, 0xBD, 0xE4, 0xB8, 0x96, 0xE7, 0x95, 0x8C];
+        let data = vec![
+            0xE4, 0xBD, 0xA0, 0xE5, 0xA5, 0xBD, 0xE4, 0xB8, 0x96, 0xE7, 0x95, 0x8C,
+        ];
         let result = validate_utf8(&data).unwrap();
         assert_eq!(result.encoding, Encoding::Utf8);
         assert!(result.confidence > 0.9);

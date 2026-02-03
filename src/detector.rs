@@ -1,10 +1,9 @@
 /// Main charset detection engine
 ///
 /// Orchestrates all detection strategies and provides the main API
-
 use crate::models::{DetectionResult, DetectionResults, Encoding, Language};
 use crate::ranges::has_iso2022_sequences;
-use crate::scorers::{validate_utf8, detect_gbk, detect_cp949, detect_big5, detect_shift_jis};
+use crate::scorers::{detect_big5, detect_cp949, detect_gbk, detect_shift_jis, validate_utf8};
 
 /// Main charset detector
 pub struct CharsetDetector {
@@ -56,10 +55,12 @@ impl CharsetDetector {
         if has_iso2022_sequences(data) {
             // Could be ISO-2022-JP or ISO-2022-KR
             // Add with medium confidence
-            results.add(DetectionResult::new(Encoding::Iso2022Jp, 0.7)
-                .with_language(Language::Japanese));
-            results.add(DetectionResult::new(Encoding::Iso2022Kr, 0.6)
-                .with_language(Language::Korean));
+            results.add(
+                DetectionResult::new(Encoding::Iso2022Jp, 0.7).with_language(Language::Japanese),
+            );
+            results.add(
+                DetectionResult::new(Encoding::Iso2022Kr, 0.6).with_language(Language::Korean),
+            );
         }
 
         // Phase 4: CJK encoding detection
@@ -129,8 +130,10 @@ fn detect_bom(data: &[u8]) -> Option<DetectionResult> {
     if data.len() >= 3 {
         match &data[0..3] {
             b"\xEF\xBB\xBF" => {
-                return Some(DetectionResult::new(Encoding::Utf8, 0.99)
-                    .with_method(crate::models::DetectionMethod::Bom));
+                return Some(
+                    DetectionResult::new(Encoding::Utf8, 0.99)
+                        .with_method(crate::models::DetectionMethod::Bom),
+                );
             }
             _ => {}
         }
@@ -139,12 +142,16 @@ fn detect_bom(data: &[u8]) -> Option<DetectionResult> {
     if data.len() >= 2 {
         match &data[0..2] {
             b"\xFF\xFE" => {
-                return Some(DetectionResult::new(Encoding::Utf16Le, 0.99)
-                    .with_method(crate::models::DetectionMethod::Bom));
+                return Some(
+                    DetectionResult::new(Encoding::Utf16Le, 0.99)
+                        .with_method(crate::models::DetectionMethod::Bom),
+                );
             }
             b"\xFE\xFF" => {
-                return Some(DetectionResult::new(Encoding::Utf16Be, 0.99)
-                    .with_method(crate::models::DetectionMethod::Bom));
+                return Some(
+                    DetectionResult::new(Encoding::Utf16Be, 0.99)
+                        .with_method(crate::models::DetectionMethod::Bom),
+                );
             }
             _ => {}
         }
@@ -153,12 +160,16 @@ fn detect_bom(data: &[u8]) -> Option<DetectionResult> {
     if data.len() >= 4 {
         match &data[0..4] {
             b"\xFF\xFE\x00\x00" => {
-                return Some(DetectionResult::new(Encoding::Utf32Le, 0.99)
-                    .with_method(crate::models::DetectionMethod::Bom));
+                return Some(
+                    DetectionResult::new(Encoding::Utf32Le, 0.99)
+                        .with_method(crate::models::DetectionMethod::Bom),
+                );
             }
             b"\x00\x00\xFE\xFF" => {
-                return Some(DetectionResult::new(Encoding::Utf32Be, 0.99)
-                    .with_method(crate::models::DetectionMethod::Bom));
+                return Some(
+                    DetectionResult::new(Encoding::Utf32Be, 0.99)
+                        .with_method(crate::models::DetectionMethod::Bom),
+                );
             }
             _ => {}
         }

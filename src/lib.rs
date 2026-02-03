@@ -25,14 +25,14 @@
 //! }
 //! ```
 
+pub mod detector;
 pub mod models;
 pub mod ranges;
 pub mod scorers;
-pub mod detector;
 
 // Re-export main types for convenience
-pub use models::{Encoding, Language, DetectionResult, DetectionResults, DetectionMethod};
-pub use detector::{CharsetDetector, detect, detect_best, detect_encoding};
+pub use detector::{detect, detect_best, detect_encoding, CharsetDetector};
+pub use models::{DetectionMethod, DetectionResult, DetectionResults, Encoding, Language};
 
 /// Python bindings (only available when `python` feature is enabled)
 #[cfg(feature = "python")]

@@ -5,8 +5,8 @@
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
-use crate::models::DetectionResult as RustDetectionResult;
 use crate::detector::CharsetDetector;
+use crate::models::DetectionResult as RustDetectionResult;
 
 /// Helper function to convert PyBytes to Vec<u8>
 fn pybytes_to_vec(data: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
@@ -67,7 +67,9 @@ impl PyCharsetMatch {
             "CharsetMatch(encoding='{}', confidence={:.2}, language={})",
             self.result.encoding,
             self.result.confidence,
-            self.result.language.map_or("None".to_string(), |l| l.to_string())
+            self.result
+                .language
+                .map_or("None".to_string(), |l| l.to_string())
         )
     }
 
@@ -151,7 +153,8 @@ impl PyCharsetDetector {
         let bytes = pybytes_to_vec(data)?;
         let rust_results = self.detector.detect(&bytes);
 
-        let results: Vec<PyCharsetMatch> = rust_results.candidates
+        let results: Vec<PyCharsetMatch> = rust_results
+            .candidates
             .into_iter()
             .map(|r| PyCharsetMatch { result: r })
             .collect();
@@ -162,14 +165,18 @@ impl PyCharsetDetector {
     /// Detect and return only the best match
     fn detect_best(&self, data: &Bound<'_, PyAny>) -> PyResult<Option<PyCharsetMatch>> {
         let bytes = pybytes_to_vec(data)?;
-        Ok(self.detector.detect_best(&bytes)
+        Ok(self
+            .detector
+            .detect_best(&bytes)
             .map(|r| PyCharsetMatch { result: r }))
     }
 
     /// Detect and return encoding name only (convenience method)
     fn detect_encoding(&self, data: &Bound<'_, PyAny>) -> PyResult<Option<String>> {
         let bytes = pybytes_to_vec(data)?;
-        Ok(self.detector.detect_encoding(&bytes)
+        Ok(self
+            .detector
+            .detect_encoding(&bytes)
             .map(|e| e.iana_name().to_string()))
     }
 
@@ -182,15 +189,13 @@ impl PyCharsetDetector {
 /// Convenience function: detect charset from bytes
 #[pyfunction]
 #[pyo3(signature = (data, min_confidence=0.3))]
-fn detect_from_bytes(
-    data: &Bound<'_, PyAny>,
-    min_confidence: f32,
-) -> PyResult<PyCharsetMatches> {
+fn detect_from_bytes(data: &Bound<'_, PyAny>, min_confidence: f32) -> PyResult<PyCharsetMatches> {
     let detector = CharsetDetector::new().with_min_confidence(min_confidence);
     let bytes = pybytes_to_vec(data)?;
     let rust_results = detector.detect(&bytes);
 
-    let results: Vec<PyCharsetMatch> = rust_results.candidates
+    let results: Vec<PyCharsetMatch> = rust_results
+        .candidates
         .into_iter()
         .map(|r| PyCharsetMatch { result: r })
         .collect();
@@ -207,7 +212,8 @@ fn detect_best_from_bytes(
 ) -> PyResult<Option<PyCharsetMatch>> {
     let detector = CharsetDetector::new().with_min_confidence(min_confidence);
     let bytes = pybytes_to_vec(data)?;
-    Ok(detector.detect_best(&bytes)
+    Ok(detector
+        .detect_best(&bytes)
         .map(|r| PyCharsetMatch { result: r }))
 }
 

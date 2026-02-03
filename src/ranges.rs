@@ -2,7 +2,6 @@
 ///
 /// This module defines the valid byte ranges for each encoding,
 /// which is critical for accurate detection.
-
 use std::ops::RangeInclusive;
 
 /// Check if a byte is in the given inclusive range
@@ -60,10 +59,7 @@ pub const fn is_utf16_low_surrogate(cp: u16) -> bool {
 pub const GBK_LEAD_BYTE: RangeInclusive<u8> = 0x81..=0xFE;
 
 /// GBK trail byte ranges (0x40-0x7E, 0x80-0xFE)
-pub const GBK_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
-    0x40..=0x7E,
-    0x80..=0xFE,
-];
+pub const GBK_TRAIL_BYTE: &[RangeInclusive<u8>] = &[0x40..=0x7E, 0x80..=0xFE];
 
 /// GB18030 4-byte sequence ranges
 pub const GB18030_4BYTE_FIRST: RangeInclusive<u8> = 0x81..=0xFE;
@@ -80,11 +76,7 @@ pub const CP949_LEAD_BYTE: RangeInclusive<u8> = 0x81..=0xFE;
 
 /// CP949 trail byte ranges (0x41-0x5A, 0x61-0x7A, 0x81-0xFE)
 /// Note: CP949 EXCLUDES 0x40 in trail byte position (hard discrimination rule!)
-pub const CP949_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
-    0x41..=0x5A,
-    0x61..=0x7A,
-    0x81..=0xFE,
-];
+pub const CP949_TRAIL_BYTE: &[RangeInclusive<u8>] = &[0x41..=0x5A, 0x61..=0x7A, 0x81..=0xFE];
 
 // ============================================================================
 // Big5 Ranges
@@ -94,26 +86,17 @@ pub const CP949_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
 pub const BIG5_LEAD_BYTE: RangeInclusive<u8> = 0x81..=0xFE;
 
 /// Big5 trail byte range (0x40-0x7E, 0xA1-0xFE)
-pub const BIG5_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
-    0x40..=0x7E,
-    0xA1..=0xFE,
-];
+pub const BIG5_TRAIL_BYTE: &[RangeInclusive<u8>] = &[0x40..=0x7E, 0xA1..=0xFE];
 
 // ============================================================================
 // Shift_JIS Ranges
 // ============================================================================
 
 /// Shift_JIS lead byte range (0x81-0x9F, 0xE0-0xEF)
-pub const SHIFT_JIS_LEAD_BYTE: &[RangeInclusive<u8>] = &[
-    0x81..=0x9F,
-    0xE0..=0xEF,
-];
+pub const SHIFT_JIS_LEAD_BYTE: &[RangeInclusive<u8>] = &[0x81..=0x9F, 0xE0..=0xEF];
 
 /// Shift_JIS trail byte range (0x40-0xFC, excluding 0x7F)
-pub const SHIFT_JIS_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
-    0x40..=0x7E,
-    0x80..=0xFC,
-];
+pub const SHIFT_JIS_TRAIL_BYTE: &[RangeInclusive<u8>] = &[0x40..=0x7E, 0x80..=0xFC];
 
 /// Shift_JIS single-byte Katakana range (0xA1-0xDF)
 pub const SHIFT_JIS_KATAKANA: RangeInclusive<u8> = 0xA1..=0xDF;
@@ -124,9 +107,9 @@ pub const SHIFT_JIS_KATAKANA: RangeInclusive<u8> = 0xA1..=0xDF;
 
 /// EUC-JP lead byte range (0x8E, 0x8F, 0xA1-0xFE)
 pub const EUC_JP_LEAD_BYTE: &[RangeInclusive<u8>] = &[
-    0x8E..=0x8E,  // Half-width Katakana prefix
-    0x8F..=0x8F,  // JIS X 0212 prefix
-    0xA1..=0xFE,  // JIS X 0208
+    0x8E..=0x8E, // Half-width Katakana prefix
+    0x8F..=0x8F, // JIS X 0212 prefix
+    0xA1..=0xFE, // JIS X 0208
 ];
 
 /// EUC-JP trail byte range (0xA1-0xFE)
@@ -143,11 +126,7 @@ pub const EUC_JP_HALF_KATAKANA: RangeInclusive<u8> = 0xA1..=0xDF;
 pub const EUC_KR_LEAD_BYTE: RangeInclusive<u8> = 0x81..=0xFE;
 
 /// EUC-KR trail byte range (0x41-0x5A, 0x61-0x7A, 0x81-0xFE)
-pub const EUC_KR_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
-    0x41..=0x5A,
-    0x61..=0x7A,
-    0x81..=0xFE,
-];
+pub const EUC_KR_TRAIL_BYTE: &[RangeInclusive<u8>] = &[0x41..=0x5A, 0x61..=0x7A, 0x81..=0xFE];
 
 // ============================================================================
 // ISO-2022 Escape Sequences
@@ -155,17 +134,17 @@ pub const EUC_KR_TRAIL_BYTE: &[RangeInclusive<u8>] = &[
 
 /// ISO-2022-JP escape sequences
 pub const ISO2022_JP_SEQUENCES: &[&[u8]] = &[
-    b"\x1b(B",      // ASCII
-    b"\x1b(J",      // Roman
-    b"\x1b$B",      // JIS X 0208
-    b"\x1b$@",      // JIS X 0208 (old)
-    b"\x1b$(",      // JIS X 0208 (variant)
-    b"\x1b(I",      // Half-width Katakana
+    b"\x1b(B", // ASCII
+    b"\x1b(J", // Roman
+    b"\x1b$B", // JIS X 0208
+    b"\x1b$@", // JIS X 0208 (old)
+    b"\x1b$(", // JIS X 0208 (variant)
+    b"\x1b(I", // Half-width Katakana
 ];
 
 /// ISO-2022-KR escape sequences
 pub const ISO2022_KR_SEQUENCES: &[&[u8]] = &[
-    b"\x1b$)C",     // KS X 1001
+    b"\x1b$)C", // KS X 1001
 ];
 
 // ============================================================================
@@ -175,13 +154,12 @@ pub const ISO2022_KR_SEQUENCES: &[&[u8]] = &[
 /// Check if bytes contain ISO-2022 escape sequences
 pub fn has_iso2022_sequences(data: &[u8]) -> bool {
     const ISO2022_ALL: &[&[u8]] = &[
-        b"\x1b(B", b"\x1b(J", b"\x1b$B", b"\x1b$@",
-        b"\x1b$(", b"\x1b(I", b"\x1b$)C",
+        b"\x1b(B", b"\x1b(J", b"\x1b$B", b"\x1b$@", b"\x1b$(", b"\x1b(I", b"\x1b$)C",
     ];
 
-    ISO2022_ALL.iter().any(|seq| {
-        data.windows(seq.len()).any(|window| window == *seq)
-    })
+    ISO2022_ALL
+        .iter()
+        .any(|seq| data.windows(seq.len()).any(|window| window == *seq))
 }
 
 #[cfg(test)]
