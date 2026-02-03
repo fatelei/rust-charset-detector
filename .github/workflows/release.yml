@@ -49,8 +49,14 @@ jobs:
   build-musllinux:
     name: Build musllinux wheels
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - musllinux_x86_64
+          - musllinux_i686
+          - musllinux_aarch64
     container:
-      image: ghcr.io/pyo3/maturin:main
+      image: ghcr.io/pyo3/maturin:release-musllinux_x86_64
       options: --user root
 
     steps:
@@ -58,15 +64,12 @@ jobs:
 
     - name: Build wheels
       run: |
-        apt-get update
-        apt-get install -y python3 python3-pip
-        pip install maturin[patchelf]
         maturin build --release --strip --out dist/ --manylinux 2010
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-musllinux
+        name: wheels-${{ matrix.target }}
         path: dist/*
 
   publish-pypi:

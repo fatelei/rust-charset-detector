@@ -81,7 +81,10 @@ jobs:
       run: maturin build --release --strip
 
     - name: Install wheel
-      run: pip install target/wheels/charset_detector-*.whl
+      shell: bash
+      run: |
+        wheel_path=$(ls target/wheels/charset_detector-*.whl 2>/dev/null || ls target/wheels/*.whl 2>/dev/null | head -1)
+        pip install "$wheel_path"
 
     - name: Install pytest
       run: pip install pytest

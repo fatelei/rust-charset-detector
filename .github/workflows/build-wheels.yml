@@ -45,8 +45,10 @@ jobs:
       run: maturin build --release --strip --out dist/
 
     - name: Test wheel
+      shell: bash
       run: |
-        pip install dist/*.whl
+        wheel_path=$(ls dist/*.whl 2>/dev/null | head -1)
+        pip install "$wheel_path"
         pip install pytest
         pytest tests/ -v
 
@@ -59,8 +61,16 @@ jobs:
   build-musllinux:
     name: Build musllinux wheels
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - musllinux_x86_64
+          - musllinux_i686
+          - musllinux_aarch64
+          - musllinux_ppc64le
+          - musllinux_s390x
     container:
-      image: ghcr.io/pyo3/maturin:main
+      image: ghcr.io/pyo3/maturin:release-musllinux_x86_64
       options: --user root
 
     steps:
@@ -68,13 +78,27 @@ jobs:
 
     - name: Build wheels
       run: |
-        apt-get update
-        apt-get install -y python3 python3-pip
-        pip install maturin[patchelf]
+        case "${{ matrix.target }}" in
+          musllinux_x86_64)
+            echo "Building for x86_64"
+            ;;
+          musllinux_i686)
+            echo "Building for i686"
+            ;;
+          musllinux_aarch64)
+            echo "Building for aarch64"
+            ;;
+          musllinux_ppc64le)
+            echo "Building for ppc64le"
+            ;;
+          musllinux_s390x)
+            echo "Building for s390x"
+            ;;
+        esac
         maturin build --release --strip --out dist/ --manylinux 2010
 
     - name: Upload musllinux wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheel-musllinux
+        name: wheel-${{ matrix.target }}
         path: dist/*.whl
