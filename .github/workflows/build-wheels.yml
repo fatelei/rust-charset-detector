@@ -1,0 +1,75 @@
+name: Build Wheels
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+jobs:
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install maturin
+      run: |
+        python -m pip install --upgrade pip
+        pip install maturin[patchelf]
+
+    - name: Build wheel
+      run: maturin build --release --strip --out dist/
+
+    - name: Test wheel
+      run: |
+        pip install dist/*.whl
+        pip install pytest
+        pytest tests/ -v
+
+    - name: Upload wheel artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: dist/*.whl
+
+  build-musllinux:
+    name: Build musllinux wheels
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/pyo3/maturin:main
+      options: --user root
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build wheels
+      run: |
+        apt-get update
+        apt-get install -y python3 python3-pip
+        pip install maturin[patchelf]
+        maturin build --release --strip --out dist/ --manylinux 2010
+
+    - name: Upload musllinux wheels
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheel-musllinux
+        path: dist/*.whl
